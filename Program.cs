@@ -17,8 +17,8 @@ internal partial class Program
     private static partial Regex OrderID_Regex();
 
     private static SocketGuild _guild;
-    private static readonly DiscordSocketClient Client = new(new DiscordSocketConfig 
-    { 
+    private static readonly DiscordSocketClient Client = new(new DiscordSocketConfig
+    {
         AlwaysDownloadUsers = true,
         GatewayIntents = GatewayIntents.GuildMessageReactions | GatewayIntents.GuildMessages | GatewayIntents.MessageContent | GatewayIntents.Guilds | GatewayIntents.GuildMembers
     });
@@ -33,9 +33,11 @@ internal partial class Program
         var webhookUrl = Configuration.WebhookUrl;
         var customerRoleId = Configuration.CustomerRoleId;
 
+        Console.Title = "Order Handler";
+
         Client.Log += message =>
         {
-            WriteLog(message.Message, ConsoleColor.Cyan);
+            WriteLog(message.Message, ConsoleColor.Gray);
             return Task.CompletedTask;
         };
 
@@ -61,7 +63,7 @@ internal partial class Program
                         var firstField = embed.Fields[0];
                         paymentStatus = firstField.Name;
                         orderId = OrderID_Regex().Match(firstField.Value).ToString();
-                        
+
                         discordUserId = Convert.ToUInt64(message.CleanContent);
 
                         var embedBuilder = embed.ToEmbedBuilder();
@@ -133,14 +135,14 @@ internal partial class Program
 
                         // Confirm order fulfillment by reacting to the order's embed message with a checkmark
                         await message.AddReactionAsync(new Emoji("✅")).ConfigureAwait(false);
-                        
+
                         WriteLog($"Order Fulfilled: {orderId}", ConsoleColor.Green);
                     }
                     else
                     {
                         // Remove 'Customer' role
                         await guildUser.RemoveRoleAsync(customerRoleId).ConfigureAwait(false);
-                        
+
                         WriteLog($"Removed Customer Role: {discordUserId} ({orderId})", ConsoleColor.Green);
                     }
                 }
@@ -158,7 +160,7 @@ internal partial class Program
         await Client.LoginAsync(TokenType.Bot, Configuration.BotToken).ConfigureAwait(false);
         await Client.StartAsync().ConfigureAwait(false);
         await Task.Delay(-1).ConfigureAwait(false);
-        
+
         return;
 
         static Task ClientReady()
@@ -175,7 +177,7 @@ internal partial class Program
         Console.ForegroundColor = consoleColor;
         Console.Write(log);
         Console.ResetColor();
-        
+
         File.AppendAllText("Logs.txt", log);
     }
 }
