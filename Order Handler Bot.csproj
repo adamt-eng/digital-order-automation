@@ -1,0 +1,48 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows10.0.17763.0</TargetFramework>
+    <RootNamespace>Order_Handler_Bot</RootNamespace>
+    <NoWin32Manifest>true</NoWin32Manifest>
+    <StartupObject></StartupObject>
+    <Authors />
+    <Company />
+    <Product />
+    <Version>1</Version>
+    <PackageId />
+    <AssemblyName>Order Handler Bot</AssemblyName>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <IsPublishable>False</IsPublishable>
+    <SignAssembly>False</SignAssembly>
+    <Platforms>AnyCPU;x64</Platforms>
+    <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+    <Optimize>true</Optimize>
+    <DefineConstants />
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+    <Optimize>true</Optimize>
+    <DefineConstants />
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugType>none</DebugType>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <DebugType>none</DebugType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Discord.Net" Version="3.15.3" />
+  </ItemGroup>
+
+</Project>
