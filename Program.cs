@@ -28,6 +28,8 @@ internal partial class Program
 
     private static async Task Main()
     {
+        const string correctedOrdersTxt = "Corrected Orders.txt";
+
         var webhookUrl = Configuration.WebhookUrl;
         var customerRoleId = Configuration.CustomerRoleId;
 
@@ -77,7 +79,7 @@ internal partial class Program
                         // And so if the user refunds, the notification would be sent with the incorrect Discord User ID
                         // But since we corrected the order and saved it in the "Corrected Orders.txt" file
                         // We can now check first if the order is in "Corrected Orders.txt" before proceeding
-                        await File.AppendAllTextAsync("Corrected Orders.txt", $"\n{orderId}:{discordUserId}").ConfigureAwait(false);
+                        await File.AppendAllTextAsync(correctedOrdersTxt, $"\n{orderId}:{discordUserId}").ConfigureAwait(false);
                     }
                     else if (message.Author.Id == Convert.ToUInt64(webhookUrl.Split('/')[5]))
                     {
@@ -89,10 +91,16 @@ internal partial class Program
 
                         // Get User ID
                         {
+                            if (!File.Exists(correctedOrdersTxt))
+                            {
+                                var create = File.Create(correctedOrdersTxt);
+                                await create.DisposeAsync().ConfigureAwait(false);
+                            }
+
                             // Check if the order was corrected
                             // If it was, get the correct Discord User ID
                             var correctedOrder = false;
-                            foreach (var line in (await File.ReadAllLinesAsync("Corrected Orders.txt").ConfigureAwait(false)).Where(line => line.Contains(orderId)))
+                            foreach (var line in (await File.ReadAllLinesAsync(correctedOrdersTxt).ConfigureAwait(false)).Where(line => line.Contains(orderId)))
                             {
                                 discordUserId = Convert.ToUInt64(line.Replace($"{orderId}:", string.Empty));
                                 correctedOrder = true;
