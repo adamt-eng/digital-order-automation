@@ -35,58 +35,32 @@ function sendCurl($url, array $options) {
     return $response;
 }
 
-// Check if the request is legitimate
-{
-    // Add getallheaders() if it doesn't exist
-    if (!function_exists('getallheaders')) 
-    {
-        function getallheaders()
-        {
-            $headers = [];
-            foreach ($_SERVER as $name => $value)
-            {
-                if (substr($name, 0, 5) == 'HTTP_') 
-                {
-                    $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
-                }
-            }
-            return $headers;
-        }
-    }
-    
-    // Verify signature
-    $eventCreated = $requestData['eventCreated'];
-    $eventId = $requestData['eventId'];
-    $hmacResult = hash_hmac('sha256', "$eventCreated.$eventId", ECWID_CLIENT_SECRET, true);
-    $generatedSignature = base64_encode($hmacResult);
-			
-    $signatureHeaderPresent = false;
-    $signatureValid = true;
-    foreach (getallheaders() as $name => $value) 
-    {
-        if (strtolower($name) == 'x-ecwid-webhook-signature') 
-        {
-            $signatureHeaderPresent = true;
-			
-            if ($generatedSignature !== $value) 
-            {
-                $signatureValid = false;
-                break;
+// --- Signature verification ---
+if (!function_exists('getallheaders')) {
+    function getallheaders() {
+        $headers = [];
+        foreach ($_SERVER as $k => $v) {
+            if (strpos($k, 'HTTP_') === 0) {
+                $key = str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($k, 5)))));
+                $headers[$key] = $v;
             }
         }
+        return $headers;
     }
-    
-    if ($signatureHeaderPresent === false || $signatureValid === false)
-    {
-        sendCurl($discordWebhookUrl, [
-            CURLOPT_POST => true,
-            CURLOPT_SSL_VERIFYPEER => false,
-            CURLOPT_SSL_VERIFYHOST => false,
-            CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
-            CURLOPT_POSTFIELDS => json_encode(['content' => 'Signature Invalid.']),
-        ]);
-        exit;
-    }
+}
+
+$headers = array_change_key_case(getallheaders(), CASE_LOWER);
+$receivedSig = $headers['x-ecwid-webhook-signature'] ?? null;
+
+$expectedSig = base64_encode(hash_hmac(
+    'sha256',
+    "{$requestData['eventCreated']}.{$requestData['eventId']}",
+    ECWID_CLIENT_SECRET,
+    true
+));
+
+if ($receivedSig !== $expectedSig) {
+    exit;
 }
 
 $orderId = $requestData['data']['orderId'];
