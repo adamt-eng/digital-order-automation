@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0-windows10.0.17763.0</TargetFramework>
-    <RootNamespace>Order_Handler_Bot</RootNamespace>
+    <TargetFramework>net9.0-windows10.0.17763.0</TargetFramework>
+    <RootNamespace>Order_Handler_App</RootNamespace>
     <NoWin32Manifest>true</NoWin32Manifest>
     <StartupObject></StartupObject>
     <Authors />
@@ -11,7 +11,7 @@
     <Product />
     <Version>1</Version>
     <PackageId />
-    <AssemblyName>Order Handler Bot</AssemblyName>
+    <AssemblyName>Order Handler App</AssemblyName>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <IsPublishable>False</IsPublishable>
     <SignAssembly>False</SignAssembly>

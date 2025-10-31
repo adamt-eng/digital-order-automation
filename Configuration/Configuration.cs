@@ -1,4 +1,4 @@
-﻿namespace Order_Handler_Bot.Configuration;
+﻿namespace Order_Handler_App.Configuration;
 
 public class Configuration
 {

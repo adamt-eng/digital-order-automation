@@ -7,9 +7,9 @@ using Discord;
 using Discord.Rest;
 using Discord.Webhook;
 using Discord.WebSocket;
-using Order_Handler_Bot.Configuration;
+using Order_Handler_App.Configuration;
 
-namespace Order_Handler_Bot;
+namespace Order_Handler_App;
 
 internal partial class Program
 {
@@ -49,7 +49,7 @@ internal partial class Program
                 {
                     string orderId, paymentStatus;
 
-                    var discordUserId = new ulong();
+                    var discordUserId = 0UL;
 
                     // A message from the admin is to correct an order that has an invalid Discord User ID
                     // The message should contain a Discord User ID and should be a reply to the message containing the order's embed

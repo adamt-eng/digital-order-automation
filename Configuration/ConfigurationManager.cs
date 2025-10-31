@@ -3,7 +3,7 @@ using System.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace Order_Handler_Bot.Configuration;
+namespace Order_Handler_App.Configuration;
 
 public class ConfigurationManager(string configFilePath)
 {
