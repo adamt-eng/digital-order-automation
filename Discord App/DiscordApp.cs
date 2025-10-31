@@ -18,24 +18,23 @@ internal class DiscordApp
                          GatewayIntents.GuildMembers
     });
 
-    internal async Task StartAsync()
+    internal static async Task StartAsync()
     {
-        Client.Log += message =>
-        {
-            _ = Task.Run(() =>
-            {
-                LoggingService.WriteLog(message.Message);
-                return Task.CompletedTask;
-            });
-            return Task.CompletedTask;
-        };
+        Client.Log += OnClientOnLog;
 
         await new MessageHandler().Initialize(Client);
 
         Client.Ready += ClientReady;
-        await Client.LoginAsync(TokenType.Bot, AppContext.Configuration.WebhookUrl).ConfigureAwait(false);
+
+        await Client.LoginAsync(TokenType.Bot, AppContext.Configuration.BotToken).ConfigureAwait(false);
         await Client.StartAsync();
         await Task.Delay(-1);
+    }
+
+    private static Task OnClientOnLog(LogMessage message)
+    {
+        LoggingService.WriteLog(message.Message);
+        return Task.CompletedTask;
     }
 
     private static Task ClientReady()
