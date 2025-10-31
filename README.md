@@ -40,7 +40,7 @@ The system has two main components:
 ### 1. Order Placement and PHP Processing
 
 1. **Webhook Triggered**
-   When a customer completes a purchase, Ecwid sends a `POST` request to your webhook endpoint (`order_handler.php`).
+   When a customer completes a purchase, Ecwid sends a `POST` request to your webhook endpoint (`ecwid_webhook_handler.php`).
 
 2. **Signature Verification**
    The script verifies the HMAC signature to ensure the event came from Ecwid.
