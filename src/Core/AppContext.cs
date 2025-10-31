@@ -1,6 +1,6 @@
 ﻿using Discord.WebSocket;
 
-namespace Order_Handler_App.Core;
+namespace Order_Handler_App.src.Core;
 
 internal static class AppContext
 {

@@ -58,7 +58,7 @@ The system has two main components:
 
 **Example Embed**
 
-![Embed Example](Media/Embed%20Example.png)
+![Embed Example](media/Embed%20Example.png)
 
 ---
 
@@ -80,7 +80,7 @@ The system has two main components:
 
 **Process Example**
 
-![Process Showcase](Media/Process%20Showcase.gif)
+![Process Showcase](media/Process%20Showcase.gif)
 
 ---
 

@@ -2,8 +2,8 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Discord.WebSocket;
-using Order_Handler_App.Core;
-using AppContext = Order_Handler_App.Core.AppContext;
+using Order_Handler_App.src.Core;
+using AppContext = Order_Handler_App.src.Core.AppContext;
 using RegexHelper = Order_Handler_App.Helpers.RegexHelper;
 
 namespace Order_Handler_App.Discord_App.Handlers;

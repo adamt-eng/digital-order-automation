@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Order_Handler_App.Core;
+namespace Order_Handler_App.src.Core;
 
 internal class EnvironmentConfig
 {

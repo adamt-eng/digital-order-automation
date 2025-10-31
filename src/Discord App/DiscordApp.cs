@@ -1,9 +1,9 @@
 ﻿using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
-using Order_Handler_App.Core;
 using Order_Handler_App.Discord_App.Handlers;
-using AppContext = Order_Handler_App.Core.AppContext;
+using Order_Handler_App.src.Core;
+using AppContext = Order_Handler_App.src.Core.AppContext;
 
 namespace Order_Handler_App.Discord_App;
 
