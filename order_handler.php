@@ -17,6 +17,24 @@ if (!in_array($requestData['eventType'], ['order.created', 'order.updated']))
     exit;
 }
 
+/**
+ * Minimal cURL wrapper.
+ * Returns response body string on success, or false on error.
+ */
+function sendCurl($url, array $options) {
+    $ch = curl_init($url);
+    curl_setopt_array($ch, $options + [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => 20,
+    ]);
+    $response = curl_exec($ch);
+    if ($response === false) {
+        error_log('cURL error (' . $url . '): ' . curl_error($ch));
+    }
+    curl_close($ch);
+    return $response;
+}
+
 // Check if the request is legitimate
 {
     // Add getallheaders() if it doesn't exist
@@ -60,19 +78,13 @@ if (!in_array($requestData['eventType'], ['order.created', 'order.updated']))
     
     if ($signatureHeaderPresent === false || $signatureValid === false)
     {
-        // Send to the Discord webhook that a request contained an invalid signature or not signature at al
-        curl_setopt_array($ch = curl_init(),
-    	[
-            CURLOPT_URL => $discordWebhookUrl,
+        sendCurl($discordWebhookUrl, [
             CURLOPT_POST => true,
-            CURLOPT_TIMEOUT => 20,
             CURLOPT_SSL_VERIFYPEER => false,
             CURLOPT_SSL_VERIFYHOST => false,
-            CURLOPT_HTTPHEADER => [ 'Content-Type: application/json' ],
-            CURLOPT_POSTFIELDS => json_encode([ 'content' => "Signature Invalid." ]),
+            CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+            CURLOPT_POSTFIELDS => json_encode(['content' => 'Signature Invalid.']),
         ]);
-        curl_exec($ch);
-        curl_close($ch);
         exit;
     }
 }
@@ -81,17 +93,19 @@ $orderId = $requestData['data']["orderId"];
 
 // Ecwid's POST request does not contain the information that the buyer has inputted when purchasing
 // So we need to get the order data manually as we need the Discord User ID and other relevant information
-$ch = curl_init("https://app.ecwid.com/api/v3/$storeId/orders/$orderId");
-curl_setopt_array($ch,
-[
-    CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_TIMEOUT => 20,
-    CURLOPT_HTTPHEADER => [ 'Authorization: Bearer ' . ECWID_API_TOKEN, "accept: application/json" ]
+$response = sendCurl("https://app.ecwid.com/api/v3/$storeId/orders/$orderId", [
+    CURLOPT_HTTPHEADER => [
+        'Authorization: Bearer ' . ECWID_API_TOKEN,
+        'Accept: application/json',
+    ],
 ]);
 
+if ($response === false) {
+    exit;
+}
+
 // Decode order data
-$orderData = json_decode(curl_exec($ch));
-curl_close($ch);
+$orderData = json_decode($response);
 
 $paymentStatus = $orderData->paymentStatus;
 $fulfillmentStatus = $orderData->fulfillmentStatus;
@@ -104,16 +118,19 @@ if ($paymentStatus == 'PAID')
 
         $orderData->fulfillmentStatus = "DELIVERED";
             
-        $ch = curl_init("https://app.ecwid.com/api/v3/$storeId/orders/$orderId");
-        curl_setopt_array($ch,
-        [
-            CURLOPT_CUSTOMREQUEST => "PUT",
+        $response = sendCurl("https://app.ecwid.com/api/v3/$storeId/orders/$orderId", [
+            CURLOPT_CUSTOMREQUEST => 'PUT',
             CURLOPT_POSTFIELDS => json_encode($orderData),
-            CURLOPT_HTTPHEADER => [ 'Authorization: Bearer ' . ECWID_API_TOKEN, "accept: application/json", "content-type: application/json" ]
+            CURLOPT_HTTPHEADER => [
+                'Authorization: Bearer ' . ECWID_API_TOKEN,
+                'Accept: application/json',
+                'Content-Type: application/json',
+            ],
         ]);
     
-        curl_exec($ch);
-        curl_close($ch);
+        if ($response === false) {
+            exit;
+        }
     }
 }
 
@@ -125,15 +142,9 @@ $paymentMethod = $orderData->paymentMethod ?? "N/A";
 $items = $orderData->items[0];
 $discordUserId = $items->selectedOptions[0]->value;
 
-// Get country based on IP address
-$ch = curl_init("http://ip-api.com/json/$ipAddress?fields=country");
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-$country = json_decode(curl_exec($ch))->country;
-curl_close($ch);
-
 // Send order information to Discord webhook
 $ch = curl_init();
-curl_setopt_array($ch, [ CURLOPT_URL => $discordWebhookUrl, CURLOPT_POST => true, CURLOPT_POSTFIELDS => json_encode(
+$payload = json_encode(
 [ 
     "embeds" =>
     [
@@ -144,14 +155,18 @@ curl_setopt_array($ch, [ CURLOPT_URL => $discordWebhookUrl, CURLOPT_POST => true
             [
                 [ "name" => "[$paymentStatus - {$total}€]", "value" => "[$orderId](https://my.ecwid.com/store/$storeId#order:id=$orderId)", "inline" => false ], 
                 [ "name" => "Email Address", "value" => $email, "inline" => false ], 
-                [ "name" => "IP Address", "value" => "$ipAddress - $country", "inline" => false ], 
+                [ "name" => "IP Address", "value" => $ipAddress, "inline" => false ], 
                 [ "name" => "Discord User ID", "value" => $discordUserId, "inline" => true ]
             ] 
         ]
     ]
-]), CURLOPT_HTTPHEADER => [ "Content-Type: application/json" ]]);
+]);
 
-curl_exec($ch);
-curl_close($ch);
+sendCurl($discordWebhookUrl, [
+    CURLOPT_POST => true,
+    CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+    CURLOPT_POSTFIELDS => $payload,
+]);
+
 
 ?>
