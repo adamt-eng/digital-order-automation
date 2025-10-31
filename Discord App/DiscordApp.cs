@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
 using Order_Handler_App.Services;
@@ -19,8 +18,6 @@ internal class DiscordApp
                          GatewayIntents.GuildMembers
     });
 
-    private static readonly string DiscordAppToken = Environment.GetEnvironmentVariable("DISCORD_APP_TOKEN") ?? throw new InvalidOperationException("AXTU_DISCORD_APP_TOKEN not set");
-
     internal async Task StartAsync()
     {
         Client.Log += message =>
@@ -36,7 +33,7 @@ internal class DiscordApp
         await new MessageHandler().Initialize(Client);
 
         Client.Ready += ClientReady;
-        await Client.LoginAsync(TokenType.Bot, DiscordAppToken).ConfigureAwait(false);
+        await Client.LoginAsync(TokenType.Bot, AppContext.Configuration.WebhookUrl).ConfigureAwait(false);
         await Client.StartAsync();
         await Task.Delay(-1);
     }
