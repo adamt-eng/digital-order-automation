@@ -8,8 +8,8 @@ $requestData = json_decode(file_get_contents('php://input'), true);
 
 http_response_code(200);
 
-$storeId = "YOUR_STORE_ID_HERE";
-$discordWebhookUrl = "YOUR_DISCORD_WEBHOOK_URL_HERE";
+$storeId = 'YOUR_STORE_ID_HERE';
+$discordWebhookUrl = 'YOUR_DISCORD_WEBHOOK_URL_HERE';
 
 // Filter events
 if (!in_array($requestData['eventType'], ['order.created', 'order.updated']))
@@ -57,14 +57,14 @@ function sendCurl($url, array $options) {
     // Verify signature
     $eventCreated = $requestData['eventCreated'];
     $eventId = $requestData['eventId'];
-    $hmacResult = hash_hmac("sha256", "$eventCreated.$eventId", ECWID_CLIENT_SECRET, true);
+    $hmacResult = hash_hmac('sha256', "$eventCreated.$eventId", ECWID_CLIENT_SECRET, true);
     $generatedSignature = base64_encode($hmacResult);
 			
     $signatureHeaderPresent = false;
     $signatureValid = true;
     foreach (getallheaders() as $name => $value) 
     {
-        if (strtolower($name) == "x-ecwid-webhook-signature") 
+        if (strtolower($name) == 'x-ecwid-webhook-signature') 
         {
             $signatureHeaderPresent = true;
 			
@@ -89,7 +89,7 @@ function sendCurl($url, array $options) {
     }
 }
 
-$orderId = $requestData['data']["orderId"];
+$orderId = $requestData['data']['orderId'];
 
 // Ecwid's POST request does not contain the information that the buyer has inputted when purchasing
 // So we need to get the order data manually as we need the Discord User ID and other relevant information
@@ -112,11 +112,11 @@ $fulfillmentStatus = $orderData->fulfillmentStatus;
 
 if ($paymentStatus == 'PAID') 
 {
-    if ($fulfillmentStatus === "AWAITING_PROCESSING")
+    if ($fulfillmentStatus === 'AWAITING_PROCESSING')
     {
         // Update order status
 
-        $orderData->fulfillmentStatus = "DELIVERED";
+        $orderData->fulfillmentStatus = 'DELIVERED';
             
         $response = sendCurl("https://app.ecwid.com/api/v3/$storeId/orders/$orderId", [
             CURLOPT_CUSTOMREQUEST => 'PUT',
@@ -137,7 +137,7 @@ if ($paymentStatus == 'PAID')
 $ipAddress = $orderData->ipAddress;
 $total = strval($orderData->total);
 $email = $orderData->email;
-$paymentMethod = $orderData->paymentMethod ?? "N/A";
+$paymentMethod = $orderData->paymentMethod ?? 'N/A';
 
 $items = $orderData->items[0];
 $discordUserId = $items->selectedOptions[0]->value;
@@ -146,17 +146,17 @@ $discordUserId = $items->selectedOptions[0]->value;
 $ch = curl_init();
 $payload = json_encode(
 [ 
-    "embeds" =>
+    'embeds' =>
     [
         [ 
-            "type" => "rich",
-            "color" => "682401",
-            "fields" => 
+            'type' => 'rich',
+            'color' => '682401',
+            'fields' => 
             [
-                [ "name" => "[$paymentStatus - {$total}€]", "value" => "[$orderId](https://my.ecwid.com/store/$storeId#order:id=$orderId)", "inline" => false ], 
-                [ "name" => "Email Address", "value" => $email, "inline" => false ], 
-                [ "name" => "IP Address", "value" => $ipAddress, "inline" => false ], 
-                [ "name" => "Discord User ID", "value" => $discordUserId, "inline" => true ]
+                [ 'name' => "[$paymentStatus - {$total}€]", 'value' => "[$orderId](https://my.ecwid.com/store/$storeId#order:id=$orderId)", 'inline' => false ], 
+                [ 'name' => 'Email Address', 'value' => $email, 'inline' => false ], 
+                [ 'name' => 'IP Address', 'value' => $ipAddress, 'inline' => false ], 
+                [ 'name' => 'Discord User ID', 'value' => $discordUserId, 'inline' => true ]
             ] 
         ]
     ]
