@@ -84,56 +84,62 @@ $orderData = json_decode($response);
 $paymentStatus = $orderData->paymentStatus;
 $fulfillmentStatus = $orderData->fulfillmentStatus;
 
-if ($paymentStatus == 'PAID') 
+if ($paymentStatus === 'PAID' && $fulfillmentStatus === 'AWAITING_PROCESSING')
 {
-    if ($fulfillmentStatus === 'AWAITING_PROCESSING')
-    {
-        // Update order status
-
-        $orderData->fulfillmentStatus = 'DELIVERED';
+    $orderData->fulfillmentStatus = 'DELIVERED';
             
-        $response = sendCurl("https://app.ecwid.com/api/v3/$storeId/orders/$orderId", [
-            CURLOPT_CUSTOMREQUEST => 'PUT',
-            CURLOPT_POSTFIELDS => json_encode($orderData),
-            CURLOPT_HTTPHEADER => [
-                'Authorization: Bearer ' . ECWID_API_TOKEN,
-                'Accept: application/json',
-                'Content-Type: application/json',
-            ],
-        ]);
+    $response = sendCurl("https://app.ecwid.com/api/v3/$storeId/orders/$orderId", [
+        CURLOPT_CUSTOMREQUEST => 'PUT',
+        CURLOPT_POSTFIELDS => json_encode($orderData),
+        CURLOPT_HTTPHEADER => [
+            'Authorization: Bearer ' . ECWID_API_TOKEN,
+            'Accept: application/json',
+            'Content-Type: application/json',
+        ],
+    ]);
     
-        if ($response === false) {
-            exit;
-        }
+    if ($response === false) {
+        exit;
     }
 }
 
 $ipAddress = $orderData->ipAddress;
 $total = strval($orderData->total);
 $email = $orderData->email;
-$paymentMethod = $orderData->paymentMethod ?? 'N/A';
+$paymentMethod = $orderData->paymentMethod ?? 'Free';
 
 $items = $orderData->items[0];
 $discordUserId = $items->selectedOptions[0]->value;
 
-// Send order information to Discord webhook
-$ch = curl_init();
-$payload = json_encode(
-[ 
-    'embeds' =>
-    [
-        [ 
+$payload = json_encode([
+    'embeds' => [
+        [
             'type' => 'rich',
             'color' => '682401',
-            'fields' => 
-            [
-                [ 'name' => "[$paymentStatus - {$total}€]", 'value' => "[$orderId](https://my.ecwid.com/store/$storeId#order:id=$orderId)", 'inline' => false ], 
-                [ 'name' => 'Email Address', 'value' => $email, 'inline' => false ], 
-                [ 'name' => 'IP Address', 'value' => $ipAddress, 'inline' => false ], 
-                [ 'name' => 'Discord User ID', 'value' => $discordUserId, 'inline' => true ]
-            ] 
-        ]
-    ]
+            'fields' => [
+                [
+                    'name' => "[$paymentStatus - {$total}€]",
+                    'value' => "[$orderId](https://my.ecwid.com/store/$storeId#order:id=$orderId)",
+                    'inline' => false,
+                ],
+                [
+                    'name' => 'Email Address',
+                    'value' => $email,
+                    'inline' => false,
+                ],
+                [
+                    'name' => 'IP Address',
+                    'value' => $ipAddress,
+                    'inline' => false,
+                ],
+                [
+                    'name' => 'Discord User ID',
+                    'value' => $discordUserId,
+                    'inline' => true,
+                ],
+            ],
+        ],
+    ],
 ]);
 
 sendCurl($discordWebhookUrl, [
@@ -141,6 +147,5 @@ sendCurl($discordWebhookUrl, [
     CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
     CURLOPT_POSTFIELDS => $payload,
 ]);
-
 
 ?>
