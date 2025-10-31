@@ -1,12 +1,12 @@
-﻿using Discord.WebSocket;
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Order_Handler_App.Helpers;
-using Order_Handler_App.Services;
+using Discord.WebSocket;
+using Order_Handler_App.Core;
 using AppContext = Order_Handler_App.Core.AppContext;
+using RegexHelper = Order_Handler_App.Helpers.RegexHelper;
 
-namespace Order_Handler_App.Discord_App;
+namespace Order_Handler_App.Discord_App.Handlers;
 
 internal class MessageHandler : IDiscordEventHandler
 {
@@ -28,7 +28,7 @@ internal class MessageHandler : IDiscordEventHandler
             LoggingService.WriteLog($"[RECEIVED] {timestamp} | Msg:{msgId} | Author:{author} | Channel:{channelId}");
 
             // Filter messages
-            if (channelId != AppContext.Configuration.OrdersChannelId)
+            if (channelId != AppContext.Config.OrdersChannelId)
             {
                 return;
             }
@@ -63,12 +63,12 @@ internal class MessageHandler : IDiscordEventHandler
 
                 if (paymentStatus.Contains("PAID", StringComparison.OrdinalIgnoreCase))
                 {
-                    await guildUser.AddRoleAsync(AppContext.Configuration.CustomerRoleId).ConfigureAwait(false);
+                    await guildUser.AddRoleAsync(AppContext.Config.CustomerRoleId).ConfigureAwait(false);
                     LoggingService.WriteLog($"[INFO] Role added for user:{discordUserId} | Order:{orderId} | Status:{paymentStatus}", ConsoleColor.Green);
                 }
                 else
                 {
-                    await guildUser.RemoveRoleAsync(AppContext.Configuration.CustomerRoleId).ConfigureAwait(false);
+                    await guildUser.RemoveRoleAsync(AppContext.Config.CustomerRoleId).ConfigureAwait(false);
                     LoggingService.WriteLog($"[INFO] Role removed for user:{discordUserId} | Order:{orderId} | Status:{paymentStatus}", ConsoleColor.Cyan);
                 }
             }

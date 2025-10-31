@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Order_Handler_App.Services;
+namespace Order_Handler_App.Core;
 
 internal static class LoggingService
 {

@@ -1,7 +1,8 @@
 ﻿using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
-using Order_Handler_App.Services;
+using Order_Handler_App.Core;
+using Order_Handler_App.Discord_App.Handlers;
 using AppContext = Order_Handler_App.Core.AppContext;
 
 namespace Order_Handler_App.Discord_App;
@@ -26,7 +27,7 @@ internal class DiscordApp
 
         Client.Ready += ClientReady;
 
-        await Client.LoginAsync(TokenType.Bot, AppContext.Configuration.BotToken).ConfigureAwait(false);
+        await Client.LoginAsync(TokenType.Bot, AppContext.Config.AppToken).ConfigureAwait(false);
         await Client.StartAsync();
         await Task.Delay(-1);
     }
@@ -39,7 +40,7 @@ internal class DiscordApp
 
     private static Task ClientReady()
     {
-        AppContext.Guild = Client.GetGuild(AppContext.Configuration.GuildId);
+        AppContext.Guild = Client.GetGuild(AppContext.Config.GuildId);
         return Task.CompletedTask;
     }
 }
