@@ -1,16 +1,14 @@
 <?php
 
+// Import from config.php ECWID_CLIENT_SECRET and ECWID_API_TOKEN
+require_once __DIR__ . '/config.php';
+
 // Decode request data
 $requestData = json_decode(file_get_contents('php://input'), true);
 
-// Confirm request receival
 http_response_code(200);
 
-// Variables to be filled
-$clientSecret = "YOUR_CLIENT_SECRET_HERE";
 $storeId = "YOUR_STORE_ID_HERE";
-$apiToken = "YOUR_API_TOKEN_HERE";
-$encryptionKey = "YOUR_ENCRYPTION_KEY_HERE";
 $discordWebhookUrl = "YOUR_DISCORD_WEBHOOK_URL_HERE";
 
 // Filter events
@@ -41,7 +39,7 @@ if (!in_array($requestData['eventType'], ['order.created', 'order.updated']))
     // Verify signature
     $eventCreated = $requestData['eventCreated'];
     $eventId = $requestData['eventId'];
-    $hmacResult = hash_hmac("sha256", "$eventCreated.$eventId", $clientSecret, true);
+    $hmacResult = hash_hmac("sha256", "$eventCreated.$eventId", ECWID_CLIENT_SECRET, true);
     $generatedSignature = base64_encode($hmacResult);
 			
     $signatureHeaderPresent = false;
@@ -88,7 +86,7 @@ curl_setopt_array($ch,
 [
     CURLOPT_RETURNTRANSFER => true,
     CURLOPT_TIMEOUT => 20,
-    CURLOPT_HTTPHEADER => [ "Authorization: Bearer $apiToken", "accept: application/json" ]
+    CURLOPT_HTTPHEADER => [ 'Authorization: Bearer ' . ECWID_API_TOKEN, "accept: application/json" ]
 ]);
 
 // Decode order data
@@ -111,7 +109,7 @@ if ($paymentStatus == 'PAID')
         [
             CURLOPT_CUSTOMREQUEST => "PUT",
             CURLOPT_POSTFIELDS => json_encode($orderData),
-            CURLOPT_HTTPHEADER => [ "Authorization: Bearer $apiToken", "accept: application/json", "content-type: application/json" ]
+            CURLOPT_HTTPHEADER => [ 'Authorization: Bearer ' . ECWID_API_TOKEN, "accept: application/json", "content-type: application/json" ]
         ]);
     
         curl_exec($ch);
