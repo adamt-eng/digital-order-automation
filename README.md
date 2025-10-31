@@ -95,15 +95,3 @@ The C# application listens for messages sent in the `#orders` channel by the Dis
 ###### Process Showcase
 
 ![Process Showcase](Media/Process%20Showcase.gif)
-
-### 3. Order Correction and Handling
-
-In some cases, an admin might need to correct an order's Discord User ID if a user inputs an invalid one when purchasing. The application allows for these corrections and handles them as follows:
-
-- **Admin Updates**: The admin sends a message containing the correct Discord User ID as a reply to the original order message that contained the embed.
-
-- **Order Correction**: The application processes the order with the new Discord User ID and logs the correction for future events.
-
-###### Showcase of Admin Correcting an Order's Discord User ID
-
-![Correcting Order](Media/Correcting%20Order.gif)
