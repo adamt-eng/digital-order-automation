@@ -1,4 +1,4 @@
-# Digital Product Order Fulfillment System
+# Digital Order Automation (Ecwid → Discord)
 
 ## Introduction
 
